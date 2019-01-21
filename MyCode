@@ -36,6 +36,7 @@
 /* Line 1 of "ph2.yacc"  */
 
   import java.io.*;
+  import java.util.ArrayList;
 
 
 /**
@@ -238,7 +239,7 @@ class YYParser
    */
   public final void setDebugStream(java.io.PrintStream s) { yyDebugStream = s; }
 
-  private int yydebug = 1;
+  private int yydebug = 0;
 
   /**
    * Answer the verbosity of the debugging output; 0 means that all kinds of
@@ -394,6 +395,16 @@ class YYParser
     {
         System.out.println("Rule 1.1: " +
             "num → NUM num2");
+      yyval = new EVal();
+      ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_INTEGER, false);
+      ((EVal)yyval).type = EVal.TYPE_CODE_INTEGER;
+      ((EVal)yyval).trueList = EVal.makeList(nextQuad() + 1);
+      ((EVal)yyval).falseList = EVal.makeList(nextQuad() + 2);
+      ((EVal)yyval).nextList = EVal.merge(((EVal)yyval).trueList, ((EVal)yyval).falseList);
+
+      emit(":=", String.valueOf(lexInt), null, ((EVal)yyval).place);
+      emit("check", ((EVal)yyval).place, null, String.valueOf(nextQuad() + 2)); // result may be backpatched.
+      emit("goto", null, null, String.valueOf(nextQuad() + 1)); // result may be backpatched.
     };
   break;
     
@@ -406,6 +417,16 @@ class YYParser
     {
         System.out.println("Rule 12.1: " +
             "num2 → num num2");
+      yyval = new EVal();
+      ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_INTEGER, false);
+      ((EVal)yyval).type = EVal.TYPE_CODE_INTEGER;
+      ((EVal)yyval).trueList = EVal.makeList(nextQuad() + 1);
+      ((EVal)yyval).falseList = EVal.makeList(nextQuad() + 2);
+      ((EVal)yyval).nextList = EVal.merge(((EVal)yyval).trueList, ((EVal)yyval).falseList);
+
+      emit(":=", String.valueOf(lexInt), null, ((EVal)yyval).place);
+      emit("check", ((EVal)yyval).place, null, String.valueOf(nextQuad() + 2)); // result may be backpatched.
+      emit("goto", null, null, String.valueOf(nextQuad() + 1)); // result may be backpatched.
     };
   break;
     
@@ -418,6 +439,16 @@ class YYParser
     {
         System.out.println("Rule 12.2: " +
             "num2 → ϵ");
+      yyval = new EVal();
+      ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_INTEGER, false);
+      ((EVal)yyval).type = EVal.TYPE_CODE_INTEGER;
+      ((EVal)yyval).trueList = EVal.makeList(nextQuad() + 1);
+      ((EVal)yyval).falseList = EVal.makeList(nextQuad() + 2);
+      ((EVal)yyval).nextList = EVal.merge(((EVal)yyval).trueList, ((EVal)yyval).falseList);
+
+      emit(":=", String.valueOf(lexInt), null, ((EVal)yyval).place);
+      emit("check", ((EVal)yyval).place, null, String.valueOf(nextQuad() + 2)); // result may be backpatched.
+      emit("goto", null, null, String.valueOf(nextQuad() + 1)); // result may be backpatched.
     };
   break;
     
@@ -502,6 +533,7 @@ class YYParser
     {
         System.out.println("Rule 29.1: " +
             "program → list");
+      exportIntermediateCode();
     };
   break;
     
@@ -514,6 +546,8 @@ class YYParser
     {
         System.out.println("Rule 4.1: " +
             "list → declaration list2");
+      exportIntermediateCode();
+
     };
   break;
     
@@ -538,6 +572,7 @@ class YYParser
     {
         System.out.println("Rule 6.1: " +
             "paramList → paramId paramList2");
+      exportIntermediateCode();
     };
   break;
     
@@ -550,6 +585,7 @@ class YYParser
     {
         System.out.println("Rule 7.1: " +
             "localDeclarations → ε localDeclarations2");
+      exportIntermediateCode();
     };
   break;
     
@@ -670,6 +706,7 @@ class YYParser
     {
         System.out.println("Rule 18.1: " +
             "localDeclarations2 → ScopedVariableDec localDeclarations2");
+      exportIntermediateCode();
     };
   break;
     
@@ -850,6 +887,12 @@ class YYParser
     {
         System.out.println("Rule 31.1: " +
             "varDeclaration → type variableList;");
+      yyval = new EVal();
+      ((EVal)yyval).place = ((EVal)(yystack.valueAt (1-(1)))).place;
+      ((EVal)yyval).type = ((EVal)(yystack.valueAt (1-(1)))).type;
+      ((EVal)yyval).nextList = ((EVal)(yystack.valueAt (1-(1)))).nextList;
+      ((EVal)yyval).trueList = ((EVal)(yystack.valueAt (1-(1)))).trueList;
+      ((EVal)yyval).falseList = ((EVal)(yystack.valueAt (1-(1)))).falseList;
     };
   break;
     
@@ -874,6 +917,12 @@ class YYParser
     {
         System.out.println("Rule 33.1: " +
             "scopedSpecifier → static type ");
+      yyval = new EVal();
+      ((EVal)yyval).place = ((EVal)(yystack.valueAt (1-(1)))).place;
+      ((EVal)yyval).type = ((EVal)(yystack.valueAt (1-(1)))).type;
+      ((EVal)yyval).nextList = ((EVal)(yystack.valueAt (1-(1)))).nextList;
+      ((EVal)yyval).trueList = ((EVal)(yystack.valueAt (1-(1)))).trueList;
+      ((EVal)yyval).falseList = ((EVal)(yystack.valueAt (1-(1)))).falseList;
     };
   break;
     
@@ -886,6 +935,12 @@ class YYParser
     {
         System.out.println("Rule 33.2: " +
             "scopedSpecifier → type");
+      yyval = new EVal();
+      ((EVal)yyval).place = ((EVal)(yystack.valueAt (1-(1)))).place;
+      ((EVal)yyval).type = ((EVal)(yystack.valueAt (1-(1)))).type;
+      ((EVal)yyval).nextList = ((EVal)(yystack.valueAt (1-(1)))).nextList;
+      ((EVal)yyval).trueList = ((EVal)(yystack.valueAt (1-(1)))).trueList;
+      ((EVal)yyval).falseList = ((EVal)(yystack.valueAt (1-(1)))).falseList;
     };
   break;
     
@@ -898,6 +953,17 @@ class YYParser
     {
         System.out.println("Rule 34.1: " +
             "type → Boolean ");
+      yyval = new EVal();
+      ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_BOOLEAN, false);
+      ((EVal)yyval).type = EVal.TYPE_CODE_BOOLEAN;
+      ((EVal)yyval).trueList = EVal.makeList(nextQuad() + 1);
+      ((EVal)yyval).falseList = EVal.makeList(nextQuad() + 2);
+      ((EVal)yyval).nextList = EVal.merge(((EVal)yyval).trueList, ((EVal)yyval).falseList);
+
+      emit(":=", "'" + String.valueOf(lexChar) + "'", null, ((EVal)yyval).place);
+      emit("check", ((EVal)yyval).place, null, String.valueOf(nextQuad() + 2)); // result may be backpatched.
+      emit("goto", null, null, String.valueOf(nextQuad() + 1)); // result may be backpatched.
+
     };
   break;
     
@@ -910,6 +976,16 @@ class YYParser
     {
         System.out.println("Rule 34.2: " +
             "type → character ");
+      yyval = new EVal();
+      ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_CHAR, false);
+      ((EVal)yyval).type = EVal.TYPE_CODE_CHAR;
+      ((EVal)yyval).trueList = EVal.makeList(nextQuad() + 1);
+      ((EVal)yyval).falseList = EVal.makeList(nextQuad() + 2);
+      ((EVal)yyval).nextList = EVal.merge(((EVal)yyval).trueList, ((EVal)yyval).falseList);
+
+      emit(":=", "'" + String.valueOf(lexChar) + "'", null, ((EVal)yyval).place);
+      emit("check", ((EVal)yyval).place, null, String.valueOf(nextQuad() + 2)); // result may be backpatched.
+      emit("goto", null, null, String.valueOf(nextQuad() + 1)); // result may be backpatched.
     };
   break;
     
@@ -922,6 +998,16 @@ class YYParser
     {
         System.out.println("Rule 34.3: " +
             "type → integer ");
+      yyval = new EVal();
+      ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_INTEGER, false);
+      ((EVal)yyval).type = EVal.TYPE_CODE_INTEGER;
+      ((EVal)yyval).trueList = EVal.makeList(nextQuad() + 1);
+      ((EVal)yyval).falseList = EVal.makeList(nextQuad() + 2);
+      ((EVal)yyval).nextList = EVal.merge(((EVal)yyval).trueList, ((EVal)yyval).falseList);
+
+      emit(":=", String.valueOf(lexInt), null, ((EVal)yyval).place);
+      emit("check", ((EVal)yyval).place, null, String.valueOf(nextQuad() + 2)); // result may be backpatched.
+      emit("goto", null, null, String.valueOf(nextQuad() + 1)); // result may be backpatched.
     };
   break;
     
@@ -934,6 +1020,16 @@ class YYParser
     {
         System.out.println("Rule 34.4: " +
             "type → char ");
+      yyval = new EVal();
+      ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_CHAR, false);
+      ((EVal)yyval).type = EVal.TYPE_CODE_CHAR;
+      ((EVal)yyval).trueList = EVal.makeList(nextQuad() + 1);
+      ((EVal)yyval).falseList = EVal.makeList(nextQuad() + 2);
+      ((EVal)yyval).nextList = EVal.merge(((EVal)yyval).trueList, ((EVal)yyval).falseList);
+
+      emit(":=", "'" + String.valueOf(lexChar) + "'", null, ((EVal)yyval).place);
+      emit("check", ((EVal)yyval).place, null, String.valueOf(nextQuad() + 2)); // result may be backpatched.
+      emit("goto", null, null, String.valueOf(nextQuad() + 1)); // result may be backpatched.
     };
   break;
     
@@ -946,6 +1042,16 @@ class YYParser
     {
         System.out.println("Rule 34.5: " +
             "type → bool ");
+      yyval = new EVal();
+      ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_BOOLEAN, false);
+      ((EVal)yyval).type = EVal.TYPE_CODE_BOOLEAN;
+      ((EVal)yyval).trueList = EVal.makeList(nextQuad() + 1);
+      ((EVal)yyval).falseList = EVal.makeList(nextQuad() + 2);
+      ((EVal)yyval).nextList = EVal.merge(((EVal)yyval).trueList, ((EVal)yyval).falseList);
+
+      emit(":=", "'" + String.valueOf(lexChar) + "'", null, ((EVal)yyval).place);
+      emit("check", ((EVal)yyval).place, null, String.valueOf(nextQuad() + 2)); // result may be backpatched.
+      emit("goto", null, null, String.valueOf(nextQuad() + 1)); // result may be backpatched.
     };
   break;
     
@@ -958,6 +1064,16 @@ class YYParser
     {
         System.out.println("Rule 34.6: " +
             "type → int");
+      yyval = new EVal();
+      ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_INTEGER, false);
+      ((EVal)yyval).type = EVal.TYPE_CODE_INTEGER;
+      ((EVal)yyval).trueList = EVal.makeList(nextQuad() + 1);
+      ((EVal)yyval).falseList = EVal.makeList(nextQuad() + 2);
+      ((EVal)yyval).nextList = EVal.merge(((EVal)yyval).trueList, ((EVal)yyval).falseList);
+
+      emit(":=", String.valueOf(lexInt), null, ((EVal)yyval).place);
+      emit("check", ((EVal)yyval).place, null, String.valueOf(nextQuad() + 2)); // result may be backpatched.
+      emit("goto", null, null, String.valueOf(nextQuad() + 1)); // result may be backpatched.
     };
   break;
     
@@ -1234,6 +1350,33 @@ class YYParser
     {
         System.out.println("Rule 44.1: " +
             "op → +");
+      if(((((EVal)(yystack.valueAt (2-(2)))).type == EVal.TYPE_CODE_INTEGER || ((EVal)(yystack.valueAt (2-(2)))).type == EVal.TYPE_CODE_CHAR || ((EVal)(yystack.valueAt (2-(2)))).type == EVal.TYPE_CODE_BOOLEAN)
+              && (((EVal)(yystack.valueAt (2-(2)))).type1 == EVal.TYPE_CODE_INTEGER || ((EVal)(yystack.valueAt (2-(2)))).type1 == EVal.TYPE_CODE_CHAR || ((EVal)(yystack.valueAt (2-(2)))).type1 == EVal.TYPE_CODE_BOOLEAN))
+              || (((EVal)(yystack.valueAt (2-(2)))).type == EVal.TYPE_CODE_REAL && ((EVal)(yystack.valueAt (2-(2)))).type1 == EVal.TYPE_CODE_REAL)) {
+        yyval = new EVal();
+        ((EVal)yyval).place = newTemp(((EVal)(yystack.valueAt (2-(2)))).type, false);
+        ((EVal)yyval).type = ((EVal)(yystack.valueAt (2-(2)))).type;
+        emit("+", ((EVal)(yystack.valueAt (2-(2)))).place, ((EVal)(yystack.valueAt (2-(2)))).place1, ((EVal)yyval).place);
+      } else if((((EVal)(yystack.valueAt (2-(2)))).type == EVal.TYPE_CODE_INTEGER || ((EVal)(yystack.valueAt (2-(2)))).type == EVal.TYPE_CODE_CHAR || ((EVal)(yystack.valueAt (2-(2)))).type == EVal.TYPE_CODE_BOOLEAN)
+              && ((EVal)(yystack.valueAt (2-(2)))).type1 == EVal.TYPE_CODE_REAL) {
+        yyval = new EVal();
+        ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_REAL, false);
+        ((EVal)yyval).type = EVal.TYPE_CODE_REAL;
+        String tmp = newTemp(EVal.TYPE_CODE_REAL, false);
+        emit("cast", ((EVal)(yystack.valueAt (2-(2)))).place, TYPE_STRING_REAL, tmp);
+        emit("+", tmp, ((EVal)(yystack.valueAt (2-(2)))).place1, ((EVal)yyval).place);
+      } else if(((EVal)(yystack.valueAt (2-(2)))).type == EVal.TYPE_CODE_REAL
+              && (((EVal)(yystack.valueAt (2-(2)))).type1 == EVal.TYPE_CODE_INTEGER || ((EVal)(yystack.valueAt (2-(2)))).type1 == EVal.TYPE_CODE_CHAR || ((EVal)(yystack.valueAt (2-(2)))).type1 == EVal.TYPE_CODE_BOOLEAN)) {
+        yyval = new EVal();
+        ((EVal)yyval).place = newTemp(EVal.TYPE_CODE_REAL, false);
+        ((EVal)yyval).type = EVal.TYPE_CODE_REAL;
+        String tmp = newTemp(EVal.TYPE_CODE_REAL, false);
+        emit("cast", ((EVal)(yystack.valueAt (2-(2)))).place1, TYPE_STRING_REAL, tmp);
+        emit("+", ((EVal)(yystack.valueAt (2-(2)))).place, tmp, ((EVal)yyval).place);
+      } else {
+        System.err.println("Error! Invalid type for \"+\" operation.");
+        return YYABORT;
+      }
     };
   break;
     
@@ -1390,6 +1533,7 @@ class YYParser
     {
         System.out.println("Rule 48.2: " +
             "inalterable → constant ");
+
     };
   break;
     
@@ -1738,6 +1882,12 @@ class YYParser
     {
         System.out.println("Rule 64.2: " +
             "allExpression → eachExpression");
+      yyval = new EVal();
+      ((EVal)yyval).place = ((EVal)(yystack.valueAt (1-(1)))).place;
+      ((EVal)yyval).type = ((EVal)(yystack.valueAt (1-(1)))).type;
+      ((EVal)yyval).nextList = ((EVal)(yystack.valueAt (1-(1)))).nextList;
+      ((EVal)yyval).trueList = ((EVal)(yystack.valueAt (1-(1)))).trueList;
+      ((EVal)yyval).falseList = ((EVal)(yystack.valueAt (1-(1)))).falseList;
     };
   break;
     
@@ -2980,7 +3130,32 @@ class YYParser
 /* Line 927 of lalr1.java  */
 /* Line 8 of "ph2.yacc"  */
 
-    static PrintStream writer;
+  public static final String TYPE_STRING_INTEGER = "int";
+  public static final String TYPE_STRING_REAL = "double";
+  public static final String TYPE_STRING_CHAR = "char";
+  public static final String TYPE_STRING_BOOLEAN = "int";
+
+  private static final String tempStr = "TempVar";
+  public static final String startStr = "StartVar";
+  public static final String sizeStr = "SizeVar";
+  public static final String indexStr = "IndexVar";
+  public static final String condStr = "ConditionVar";
+
+  public static String lexIdentifier;
+  public static int lexInt;
+  public static double lexReal;
+  public static boolean lexBoolean;
+  public static char lexChar;
+
+  private ArrayList<Quadruple> quadruples = new ArrayList<>();
+  private SymbolTable symbolTable = new SymbolTable();
+  //public static PrintStream writer;
+
+  private int tempCounter = 0;
+  public String fileAddress="output.txt";
+
+
+  static PrintStream writer;
 
     public static void main(String args[]) throws IOException, FileNotFoundException {
         YYParser yyparser;
@@ -3019,6 +3194,103 @@ class YYParser
     }
 
 
+  private void emit(String operation, String arg0, String arg1, String result) {
+    quadruples.add(new Quadruple(operation, arg0, arg1, result));
+  }
+
+
+  private void backpatch(ArrayList<Integer> list, int quadNumber) {
+    for (int i = 0; i < list.size(); i++)
+      quadruples.get(list.get(i)).result = String.valueOf(quadNumber);
+  }
+
+  private void backpatch(int quadNumber, int destination) {
+    quadruples.get(quadNumber).result = String.valueOf(destination);
+  }
+
+  private String newTemp(int type, boolean array) {
+    String name = tempStr + tempCounter++;
+    symbolTable.addToSymbolTable(name, type, array);
+    return name;
+  }
+
+
+  private int nextQuad() {
+    return quadruples.size();
+  }
+
+
+  private String getTypeString(int typeCode){
+    switch(typeCode){
+      case EVal.TYPE_CODE_INTEGER:
+        return TYPE_STRING_INTEGER;
+      case EVal.TYPE_CODE_REAL:
+        return TYPE_STRING_REAL;
+      case EVal.TYPE_CODE_CHAR:
+        return TYPE_STRING_CHAR;
+      case EVal.TYPE_CODE_BOOLEAN:
+        return TYPE_STRING_BOOLEAN;
+      case EVal.TYPE_CODE_UNKNOWN:
+      case EVal.TYPE_CODE_RANGE:
+      default:
+        return null;
+    }
+  }
+
+
+
+  private void exportIntermediateCode() {
+    DataOutputStream dos = null;
+    try {
+      dos = new DataOutputStream(new FileOutputStream(fileAddress));
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+
+    try {
+      dos.writeBytes("#include <stdio.h>\n\nint main() {\n\t// ////////////////// Symbol Table \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ \\\\\n\n");
+      dos.writeBytes(symbolTable.toString());
+      dos.writeBytes("\n\t// ////////////////// Quadruples \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ \\\\\n\n");
+      // Backpatch of error controllers.
+      backpatch(EVal.arrayIndexOutOfBoundList, (quadruples.size() + 1)); // Array index out of bound error.
+      backpatch(EVal.invalidArraySizeList, (quadruples.size() + 2)); // Invalid array size error.
+      for (int i = 0; i < quadruples.size() && i < 100; i++) {
+        dos.writeBytes(Quadruple.LINE_STR + i + ":" + "\t\t" + quadruples.get(i) + "\n");
+      }
+      for (int i = 100; i < quadruples.size(); i++) {
+        dos.writeBytes(Quadruple.LINE_STR + i + ":" + "\t\t" + quadruples.get(i) + "\n");
+      }
+      // Normal Finish
+      if(quadruples.size() < 100)
+        dos.writeBytes(Quadruple.LINE_STR + quadruples.size() + ":" + "\t\tprintf(\"Process is terminated with no error.\\n\");\n" +
+                "\t\t\t\tgetchar();\n\t\t\t\treturn 0;\n");
+      else
+        dos.writeBytes(Quadruple.LINE_STR + quadruples.size() + ":" + "\t\tprintf(\"Process is terminated with no error.\\n\");\n" +
+                "\t\t\t\tgetchar();\n\t\t\t\treturn 0;\n");
+
+      // Array index out of bound error.
+      if(quadruples.size() < 100)
+        dos.writeBytes(Quadruple.LINE_STR + (quadruples.size() + 1) + ":" + "\t\tprintf(\"Array Error: Index out of bound!\\n\");\n" +
+                "\t\t\t\tgetchar();\n\t\t\treturn -1;\n");
+      else
+        dos.writeBytes(Quadruple.LINE_STR + (quadruples.size() + 1) + ":" + "\t\tprintf(\"Array Error: Index out of bound!\\n\");\n" +
+                "\t\t\t\tgetchar();\n\t\t\treturn -1;\n");
+
+      // Invalid array size error.
+      if(quadruples.size() < 100)
+        dos.writeBytes(Quadruple.LINE_STR + (quadruples.size() + 2) + ":" + "\t\tprintf(\"Array Error: Invalid array size!\\n\");\n" +
+                "\t\t\t\tgetchar();\n\t\t\treturn -2;\n");
+      else
+        dos.writeBytes(Quadruple.LINE_STR + (quadruples.size() + 2) + ":" + "\t\tprintf(\"Array Error: Invalid array size!\\n\");\n" +
+                "\t\t\t\tgetchar();\n\t\t\treturn -2;\n");
+
+      dos.writeBytes("}\n");
+    } catch (IOException  | NullPointerException e) {
+      System.out.println("err");
+    }
+
+  }
+
 
 /* Line 927 of lalr1.java  */
 /* Line 3025 of "ph2.cacc"  */
@@ -3026,3 +3298,212 @@ class YYParser
 }
 
 
+class Quadruple {
+
+  public static final String LINE_STR = "Line";
+
+  public String operation;
+  public String arg0;
+  public String arg1;
+  public String result;
+
+  public Quadruple(String operation, String arg0, String arg1, String result) {
+    this.operation = operation;
+    this.arg0 = arg0;
+    this.arg1 = arg1;
+    this.result = result;
+  }
+
+  @Override
+  public String toString() {
+    switch(operation.toLowerCase()){
+      case "goto":
+        return operation + " " + LINE_STR + result + ";";
+      case "check":
+        return "if (" + arg0 + ") goto " + LINE_STR + result + ";";
+      case "<":
+      case "<=":
+      case ">":
+      case ">=":
+      case "+":
+      case "-":
+      case "*":
+      case "/":
+      case "%":
+        return result + " = " + arg0 + " " + operation + " " + arg1 + ";";
+      case "=":
+        return result + " = " + arg0 + " " + "==" + " " + arg1 + ";";
+      case "<>":
+        return result + " != " + arg0 + " " + "==" + " " + arg1 + ";";
+      case "usub":
+        return result + " = -" + arg0 + ";";
+      case ":=":
+        return result + " = " + arg0 + ";";
+      case "cast":
+        return result + " = (" + arg1 + ") " + arg0 + ";";
+      case "init":
+        return arg1 + " " + result + ";";
+      case "iprint":
+        return "printf(\"%s = %d\\n\", \"" + result + "\", " + result + ");";
+      case "rprint":
+        return "printf(\"%s = %f\\n\", \"" + result + "\", " + result + ");";
+      case "cprint":
+        return "printf(\"%s = '%c'\\n\", \"" + result + "\", " + result + ");";
+      case "bprint":
+        return "printf(\"%s = %s\\n\", \"" + result + "\", " + result + " ? \"true\" : \"false\");";
+      case "aiprint":
+        return "printf(\"%s[%d] = %d\\n\", \"" + result + "\", " + arg0 + ", " + result + "[" + arg1 + "]);";
+      case "arprint":
+        return "printf(\"%s[%d] = %f\\n\", \"" + result + "\", " + arg0 + ", " + result + "[" + arg1 + "]);";
+      case "acprint":
+        return "printf(\"%s[%d] = '%c'\\n\", \"" + result + "\", " + arg0 + ", " + result + "[" + arg1 + "]);";
+      case "abprint":
+        return "printf(\"%s[%d] = %s\\n\", \"" + result + "\", " + arg0 + ", " + result + "[" + arg1 + "] ? \"true\" : \"false\");";
+      case "[]=":
+        return "*(" + result + " + " + arg1 + ") = " + arg0 + ";";
+      case "=[]":
+        return result + " = *(" + arg0 + " + " + arg1 + ");";
+      case "malloc":
+        return result + " = " + "malloc(sizeof(" + arg0 + ") * " + arg1+ ");";
+      default:
+        return null;
+    }
+  }
+}
+
+
+class EVal {
+
+  public static final int TYPE_CODE_UNKNOWN = -1;
+  public static final int TYPE_CODE_INTEGER = 0;
+  public static final int TYPE_CODE_REAL = 1;
+  public static final int TYPE_CODE_CHAR = 2;
+  public static final int TYPE_CODE_BOOLEAN = 3;
+  public static final int TYPE_CODE_RANGE = 4;
+
+
+  public String place;
+
+  public String place1;
+
+
+
+  public int type;
+
+  public int type1;
+
+
+
+  public boolean array;
+
+  public boolean array1;
+
+
+
+  public int quad;
+
+  public int quad1;
+
+
+
+
+
+  public static ArrayList<Integer> arrayIndexOutOfBoundList = new ArrayList<>();
+  public static ArrayList<Integer> invalidArraySizeList = new ArrayList<>();
+  public ArrayList<Integer> initList;
+  public ArrayList<Integer> nextList;
+  public ArrayList<Integer> trueList;
+  public ArrayList<Integer> falseList;
+
+  public ArrayList<ArrayList<EVal>> initializersList;
+  public ArrayList<EVal> declareds;
+
+  public ArrayList<EVal> initializers;
+
+  public EVal() {
+  }
+
+  public static ArrayList<Integer> makeList(int number) {
+    ArrayList<Integer> result = new ArrayList<>();
+    result.add(number);
+    return result;
+  }
+
+  public static ArrayList<Integer> merge(ArrayList<Integer> al1, ArrayList<Integer> al2) {
+    ArrayList<Integer> result = new ArrayList<>();
+    result.addAll(al1);
+    result.addAll(al2);
+    return result;
+  }
+
+  public static ArrayList<ArrayList<EVal>> makeInitializersList(ArrayList<EVal> initializers) {
+    ArrayList<ArrayList<EVal>> result = new ArrayList<>();
+    result.add(initializers);
+    return result;
+  }
+
+  public static ArrayList<EVal> makeInitializersOrDeclareds(EVal initializerOrdDeclared) {
+    ArrayList<EVal> result = new ArrayList<>();
+    result.add(initializerOrdDeclared);
+    return result;
+  }
+}
+
+
+//SymbolTable
+class SymbolTable {
+
+  public static final int NOT_IN_SYMBOL_TABLE = -1;
+
+  public ArrayList<String> names;
+  public ArrayList<Integer> types;
+  public ArrayList<Boolean> arrays;
+
+  public SymbolTable() {
+    names = new ArrayList<>();
+    types = new ArrayList<>();
+    arrays = new ArrayList<>();
+  }
+
+  public int lookUp(String name) {
+    return names.indexOf(name);
+  }
+
+  public boolean addToSymbolTable(String name, int type, boolean array) {
+    if (lookUp(name) == -1) {
+      names.add(name);
+      types.add(type);
+      arrays.add(array);
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    if(names.size() == 0)
+      return null;
+    String res = "";
+    for(int i = 0; i < names.size(); i++) {
+      switch (types.get(i)) {
+        case EVal.TYPE_CODE_INTEGER:
+          res += "\t" + YYParser.TYPE_STRING_INTEGER;
+          break;
+        case EVal.TYPE_CODE_REAL:
+          res += "\t" + YYParser.TYPE_STRING_REAL;
+          break;
+        case EVal.TYPE_CODE_CHAR:
+          res += "\t" + YYParser.TYPE_STRING_CHAR;
+          break;
+        case EVal.TYPE_CODE_BOOLEAN:
+          res += "\t" + YYParser.TYPE_STRING_BOOLEAN;
+          break;
+        case EVal.TYPE_CODE_RANGE:
+          continue;
+      }
+      res += (arrays.get(i) ? " *" : " ") + names.get(i) + ";\n";
+    }
+    return res;
+  }
+
+}
